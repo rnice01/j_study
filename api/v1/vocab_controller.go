@@ -1,11 +1,10 @@
 package api_v1
 
 import (
+	"github.com/gofiber/fiber"
 	"j_study_blog/dictionary"
 	"j_study_blog/repository"
 	"j_study_blog/web"
-
-	"github.com/gofiber/fiber"
 )
 
 type VocabController struct {
@@ -18,6 +17,15 @@ func NewVocabController(vocabRepo repository.IVocabRepo) VocabController {
 
 func (c *VocabController) FindVocab(ctx *fiber.Ctx) {
 	filter := dictionary.Vocab{KanjiReading: ctx.Body("kanji_reading")}
+
+	if ctx.Body("meaning") != "" {
+		filter.Meanings = append(filter.Meanings, dictionary.VocabMeaning{Text: ctx.Body("meaning")})
+	}
+
+	if ctx.Body("reading") != "" {
+		filter.KanaReadings = append(filter.KanaReadings, ctx.Body("reading"))
+	}
+
 	vocab, err := c.vocabRepo.FindBy(filter)
 
 	if err != nil {
