@@ -7,8 +7,6 @@ import (
 
 type InsertGuid = string
 
-type FindFilter = interface{}
-
 type RepoError error
 
 var (

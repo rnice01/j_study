@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"j_study_blog/dictionary"
+	"j_study_blog/repository"
 	"log"
 	"os"
 	"strings"
@@ -33,7 +34,7 @@ type Entry struct {
 	} `xml:"sense"`
 }
 
-func GetEntries (cb func([]dictionary.Vocab)) {
+func Import(repo repository.IVocabRepo) {
 	xmlFile, err := os.Open("j_dict/JMdict_e")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -79,14 +80,11 @@ func GetEntries (cb func([]dictionary.Vocab)) {
 
 				vocabs = append(vocabs, vocab)
 				if len(vocabs) == 100 {
-					cb(vocabs)
+					repo.InsertMany(vocabs)
 					vocabs = []dictionary.Vocab{}
 				}
 			}
 		default:
 		}
-	}
-	if len(vocabs) > 0 {
-		cb(vocabs)
 	}
 }

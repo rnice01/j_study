@@ -30,7 +30,7 @@ func initClient() error {
 	return nil
 }
 
-func NewVocabRepo() VocabRepo {
+func NewVocabRepo() *VocabRepo {
 	if db == nil {
 		err := initClient()
 		if err != nil {
@@ -38,7 +38,7 @@ func NewVocabRepo() VocabRepo {
 		}
 	}
 
-	return VocabRepo{db}
+	return &VocabRepo{db}
 }
 
 func (r *VocabRepo) Insert(vocab dictionary.Vocab) (InsertGuid, RepoError) {
