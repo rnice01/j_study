@@ -17,6 +17,6 @@ var (
 type IVocabRepo interface {
 	Insert(dictionary.Vocab) (InsertGuid, RepoError)
 	InsertMany([]dictionary.Vocab) RepoError
-	FindByKanji(kanji string) (dictionary.Vocab, RepoError)
 	FindBy(filter dictionary.Vocab) ([]dictionary.Vocab, RepoError)
+	List(offset int64, limit int64) ([]dictionary.Vocab, RepoError)
 }

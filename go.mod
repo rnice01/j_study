@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/andybalholm/brotli v1.0.1 // indirect
 	github.com/aws/aws-sdk-go v1.35.7 // indirect
+	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.0.6
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/kisielk/errcheck v1.2.0 // indirect

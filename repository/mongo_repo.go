@@ -87,20 +87,25 @@ func (r *VocabRepo) FindBy(filter dictionary.Vocab) ([]dictionary.Vocab, RepoErr
 	return vocabs, nil
 }
 
-func (r *VocabRepo) FindByKanji(kanji string) (dictionary.Vocab, RepoError) {
-	vocab := dictionary.NewVocab()
-	res := r.db.Collection("vocabs").FindOne(context.TODO(), bson.M{"kanji_reading": kanji})
+func (r *VocabRepo) List(offset int64, limit int64) ([]dictionary.Vocab, RepoError) {
+	var vocabs []dictionary.Vocab
+	opts := options.Find().SetSkip(offset).SetLimit(limit)
 
-	fmt.Println(res.Err())
-	dErr := res.Decode(&vocab)
+	cursor, err := r.db.Collection("vocabs").Find(context.TODO(), bson.M{}, opts)
 
-	if dErr == mongo.ErrNoDocuments {
-		return vocab, nil
-	} else if dErr != nil {
-		log.Fatal(dErr)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return vocab, nil
+	for cursor.Next(context.Background()) {
+		var res dictionary.Vocab
+		err := cursor.Decode(&res)
+		if err != nil {
+			log.Fatal(err)
+		}
+		vocabs = append(vocabs, res)
+	}
+	return vocabs, nil
 }
 
 func VocabToBsonFilter(vocab dictionary.Vocab) bson.M {

@@ -30,9 +30,9 @@ func (r *MockVocabRepo) FindBy(filter dictionary.Vocab) ([]dictionary.Vocab, rep
 	return arg1, arg2.(repository.RepoError)
 }
 
-func (r *MockVocabRepo) FindByKanji(kanji string) (dictionary.Vocab, repository.RepoError) {
-	args := r.Called(kanji)
-	arg1 := args.Get(0).(dictionary.Vocab)
+func (r *MockVocabRepo) List(offset int64, limit int64) ([]dictionary.Vocab, repository.RepoError) {
+	args := r.Called(offset, limit)
+	arg1 := args.Get(0).([]dictionary.Vocab)
 	arg2 := args.Get(1)
 
 	if arg2 == nil {

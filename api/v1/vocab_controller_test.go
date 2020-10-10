@@ -2,7 +2,6 @@ package api_v1
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber"
 	"io/ioutil"
 	"j_study_blog/dictionary"
 	"j_study_blog/tests"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -36,9 +37,9 @@ func TestGetBy(t *testing.T) {
 		},
 		"posting readings": {
 			contentType: "application/x-www-form-urlencoded",
-			postData: url.Values{"reading": []string{"kanaReading"}},
+			postData:    url.Values{"reading": []string{"kanaReading"}},
 			repoExpects: dictionary.Vocab{KanaReadings: []string{"kanaReading"}},
-			want: []dictionary.Vocab{dictionary.Vocab{KanaReadings: []string{"kanaReading"}}},
+			want:        []dictionary.Vocab{dictionary.Vocab{KanaReadings: []string{"kanaReading"}}},
 		},
 	}
 
@@ -60,6 +61,54 @@ func TestGetBy(t *testing.T) {
 			json.Unmarshal(body, &got)
 
 			assert.Equal(got, tc.want, "got %v\nwant%v", got, tc.want)
+		})
+	}
+}
+
+func TestListVocab(t *testing.T) {
+	assertions := map[string]struct {
+		queryString       string
+		repoExpectsOffset int64
+		repoExpectsLimit  int64
+	}{
+		"no query string": {
+			queryString:       "",
+			repoExpectsOffset: 0,
+			repoExpectsLimit:  25,
+		},
+		"limit in query string": {
+			queryString: "?limit=250",
+			repoExpectsLimit: 250,
+			repoExpectsOffset: 0,
+		},
+		"offset in query string": {
+			queryString: "?offset=500",
+			repoExpectsOffset: 500,
+			repoExpectsLimit: 25,
+		},
+		"limit and offset in query string": {
+			queryString: "?limit=10&offset=50",
+			repoExpectsLimit: 10,
+			repoExpectsOffset: 50,
+		},
+	}
+
+	for name, tc := range assertions {
+		t.Run(name, func(t *testing.T) {
+			app := fiber.New()
+			mockRepo := new(tests.MockVocabRepo)
+			var mock []dictionary.Vocab
+			mockRepo.On("List", tc.repoExpectsOffset, tc.repoExpectsLimit).Return(mock, nil)
+			controller := NewVocabController(mockRepo)
+			app.Get("/vocabs", controller.ListVocab)
+			req, _ := http.NewRequest("GET", "/vocabs"+tc.queryString, strings.NewReader(""))
+
+			resp, _ := app.Test(req)
+			var got []dictionary.Vocab
+			body, _ := ioutil.ReadAll(resp.Body)
+			json.Unmarshal(body, &got)
+
+			mockRepo.AssertExpectations(t)
 		})
 	}
 }

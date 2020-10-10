@@ -12,5 +12,6 @@ func RegsiterV1Routes(app *fiber.App) {
 	vocabController := apiV1.NewVocabController(repo)
 
 	apiV1 := app.Group("/api/v1")
-	apiV1.Get("/vocabs/kanji/:kanji", vocabController.FindVocab)
+	apiV1.Get("/vocab", vocabController.ListVocab)
+	apiV1.Post("/vocab/search", vocabController.FindVocab)
 }
